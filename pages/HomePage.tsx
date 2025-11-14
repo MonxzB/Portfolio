@@ -1,21 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { InstagramIcon, FacebookIcon, WhatsAppIcon, BehanceIcon } from '../components/icons';
+import { InstagramIcon, FacebookIcon, WhatsAppIcon, BehanceIcon, GithubIcon, LinkedinIcon, TwitterIcon, YoutubeIcon } from '../components/icons';
+import { Profile } from '../types';
+import { getProfile } from '../services/firebaseService';
+
+const iconMap: { [key: string]: React.ReactElement } = {
+    github: <GithubIcon className="w-8 h-8" />,
+    linkedin: <LinkedinIcon className="w-8 h-8" />,
+    twitter: <TwitterIcon className="w-8 h-8" />,
+    youtube: <YoutubeIcon className="w-8 h-8" />,
+    instagram: <InstagramIcon className="w-8 h-8" />,
+    facebook: <FacebookIcon className="w-8 h-8" />,
+    whatsapp: <WhatsAppIcon className="w-8 h-8" />,
+    behance: <BehanceIcon className="w-8 h-8" />,
+};
 
 const HomePage: React.FC = () => {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const socialLinks = [
-    { name: 'Instagram', icon: <InstagramIcon className="w-8 h-8" />, url: '#' },
-    { name: 'Facebook', icon: <FacebookIcon className="w-8 h-8" />, url: '#' },
-    { name: 'WhatsApp', icon: <WhatsAppIcon className="w-8 h-8" />, url: '#' },
-    { name: 'Behance', icon: <BehanceIcon className="w-8 h-8" />, url: '#' },
-  ];
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await getProfile();
+        setProfile(profileData);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+  
+  const socialLinks = profile?.socials 
+  ? Object.entries(profile.socials)
+      .filter(([, url]) => url)
+      .map(([key, url]) => ({
+          name: key.charAt(0).toUpperCase() + key.slice(1),
+          icon: iconMap[key],
+          url: url,
+      }))
+  : [];
 
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 md:py-24">
       <div className="relative mb-8">
         <img
-          src="https://picsum.photos/seed/videoeditor/200"
+          src={profile?.avatarUrl || "https://picsum.photos/seed/videoeditor/200"}
           alt="Profile"
           className="w-40 h-40 rounded-full object-cover shadow-2xl shadow-purple-500/30 border-4 border-gray-700"
         />
@@ -24,10 +64,10 @@ const HomePage: React.FC = () => {
         </div>
       </div>
       <h1 className="text-4xl md:text-6xl font-extrabold mb-4">
-        Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Your Name</span>
+        Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">{profile?.displayName || 'Your Name'}</span>
       </h1>
       <p className="text-lg md:text-xl text-gray-300 max-w-2xl mb-8">
-        A creative Video Editor specializing in visual storytelling and post-production. I bring narratives to life through compelling and dynamic edits.
+        {profile?.headline || 'A creative Video Editor specializing in visual storytelling and post-production. I bring narratives to life through compelling and dynamic edits.'}
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
@@ -45,7 +85,7 @@ const HomePage: React.FC = () => {
       </div>
 
       <div className="mt-12 flex justify-center space-x-6">
-        {socialLinks.map((link) => (
+        {socialLinks.map((link) => link.icon && (
           <a
             key={link.name}
             href={link.url}

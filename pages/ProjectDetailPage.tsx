@@ -1,12 +1,28 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { mockProjects } from './PortfolioPage';
-import { PlayIcon } from '../components/icons';
+import { Project } from '../types';
+import { getProject } from '../services/firebaseService';
 
 const ProjectDetailPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const project = mockProjects.find(p => p.id === Number(projectId));
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (projectId) {
+      const fetchProject = async () => {
+        try {
+          const projectData = await getProject(projectId);
+          setProject(projectData);
+        } catch (error) {
+          console.error("Failed to fetch project:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProject();
+    }
+  }, [projectId]);
 
   const getEmbedUrl = (url: string | undefined): string | null => {
     if (!url || url === '#') return null;
@@ -25,6 +41,14 @@ const ProjectDetailPage: React.FC = () => {
 
     return null;
   };
+  
+  if (loading) {
+     return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
 
   if (!project) {
     return (
@@ -41,28 +65,21 @@ const ProjectDetailPage: React.FC = () => {
     );
   }
   
-  const embedUrl = getEmbedUrl(project.liveUrl);
+  const embedUrl = getEmbedUrl(project.linkDemo);
 
   return (
-    <div className="space-y-12 animate-fade-in">
-      <header className="space-y-4">
-         <Link to="/portfolio" className="text-purple-400 hover:text-purple-300 transition-colors duration-300 inline-block mb-4">
-            &larr; Back to Portfolio
-        </Link>
-        <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">{project.title}</h1>
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <span key={tag} className="bg-purple-900/50 text-purple-300 text-xs font-semibold px-2.5 py-1 rounded-full">
-              {tag}
-            </span>
-          ))}
+    <div className="space-y-8 animate-fade-in">
+        <div>
+            <Link to="/portfolio" className="text-purple-400 hover:text-purple-300 transition-colors duration-300 inline-block">
+                &larr; Back to Portfolio
+            </Link>
         </div>
-      </header>
+        
+        <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">{project.title}</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
-        <div className="lg:col-span-3">
+        <section>
             {embedUrl ? (
-                <div className="aspect-video w-full rounded-lg overflow-hidden shadow-xl shadow-purple-500/20">
+                <div className="aspect-video rounded-lg overflow-hidden shadow-xl shadow-purple-500/20">
                     <iframe
                         src={embedUrl}
                         title={project.title}
@@ -75,26 +92,24 @@ const ProjectDetailPage: React.FC = () => {
             ) : (
                 <img src={project.imageUrl} alt={project.title} className="rounded-lg shadow-xl shadow-purple-500/20 w-full object-cover" />
             )}
-        </div>
-        <div className="lg:col-span-2 space-y-8 text-gray-300">
-            <div className="bg-gray-800/50 p-6 rounded-lg">
-                <h2 className="text-2xl font-bold text-purple-300 mb-3">Objective</h2>
-                <p className="leading-relaxed">{project.caseStudy?.objective}</p>
+        </section>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+                <h2 className="text-2xl font-bold text-purple-300">About this project</h2>
+                <p className="text-gray-300 leading-relaxed">{project.description}</p>
             </div>
-            <div className="bg-gray-800/50 p-6 rounded-lg">
-                <h2 className="text-2xl font-bold text-purple-300 mb-3">Process</h2>
-                <ul className="space-y-3 list-disc list-inside">
-                    {project.caseStudy?.process.map((step, index) => (
-                        <li key={index} className="leading-relaxed">{step}</li>
+            <div className="lg:col-span-1 space-y-4">
+                <h2 className="text-2xl font-bold text-purple-300">Tech Stack</h2>
+                <div className="flex flex-wrap gap-2">
+                    {project.techStack.map((tech) => (
+                        <span key={tech} className="bg-purple-900/50 text-purple-300 text-sm font-semibold px-3 py-1 rounded-full">
+                            {tech}
+                        </span>
                     ))}
-                </ul>
-            </div>
-             <div className="bg-gray-800/50 p-6 rounded-lg">
-                <h2 className="text-2xl font-bold text-purple-300 mb-3">Outcome</h2>
-                <p className="leading-relaxed">{project.caseStudy?.outcome}</p>
+                </div>
             </div>
         </div>
-      </div>
     </div>
   );
 };

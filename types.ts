@@ -1,19 +1,36 @@
+import { Timestamp } from 'firebase/firestore';
 
 export interface Project {
-  id: number;
+  id: string; // Firestore document ID
   title: string;
   description: string;
   imageUrl: string;
-  tags: string[];
-  liveUrl?: string;
-  caseStudy?: {
-    objective: string;
-    process: string[];
-    outcome: string;
-  };
+  techStack: string[];
+  linkDemo?: string;
+  linkGithub?: string;
+  createdAt: Timestamp;
+  isPublished: boolean;
 }
 
 export interface Skill {
+  id: string; // Firestore document ID
   name: string;
-  level: number; // A number from 0 to 100 for progress bar
+  iconUrl: string;
+}
+
+export interface Profile {
+  displayName: string;
+  headline: string;
+  bio: string;
+  avatarUrl: string;
+  socials: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    youtube?: string;
+    instagram?: string;
+    facebook?: string;
+    whatsapp?: string;
+    behance?: string;
+  };
 }

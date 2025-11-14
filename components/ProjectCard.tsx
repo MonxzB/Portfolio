@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Project } from '../types';
-import { PlayIcon } from './icons';
+import { ExternalLinkIcon, GithubIcon } from './icons';
 
 interface ProjectCardProps {
   project: Project;
@@ -25,22 +24,33 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           <h3 className="text-xl font-bold mb-2 text-purple-300">{project.title}</h3>
           <p className="text-gray-400 text-sm mb-4 flex-grow">{project.description}</p>
           <div className="flex flex-wrap gap-2 mb-4">
-            {project.tags.map((tag) => (
-              <span key={tag} className="bg-purple-900/50 text-purple-300 text-xs font-semibold px-2.5 py-1 rounded-full">
-                {tag}
+            {project.techStack.map((tech) => (
+              <span key={tech} className="bg-purple-900/50 text-purple-300 text-xs font-semibold px-2.5 py-1 rounded-full">
+                {tech}
               </span>
             ))}
           </div>
           <div className="mt-auto pt-4 flex justify-end space-x-4 border-t border-gray-700/50">
-            {project.liveUrl && (
+            {project.linkDemo && (
               <a 
-                href={project.liveUrl} 
+                href={project.linkDemo} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="flex items-center text-gray-300 hover:text-purple-400 transition-colors duration-300 z-10"
                 onClick={handleExternalLink}
               >
-                <PlayIcon className="w-5 h-5 mr-2" /> Watch Video
+                <ExternalLinkIcon className="w-5 h-5 mr-2" /> Live Demo
+              </a>
+            )}
+             {project.linkGithub && (
+              <a 
+                href={project.linkGithub} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center text-gray-300 hover:text-purple-400 transition-colors duration-300 z-10"
+                onClick={handleExternalLink}
+              >
+                <GithubIcon className="w-5 h-5 mr-2" /> GitHub
               </a>
             )}
           </div>
