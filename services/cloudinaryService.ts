@@ -1,11 +1,8 @@
 // IMPORTANT: Configure these in your environment variables.
 // You can find these in your Cloudinary dashboard.
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dqwomkvxi';
-const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'my_portfolio';
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET;
 
-if (CLOUDINARY_CLOUD_NAME === 'dqwomkvxi' || CLOUDINARY_UPLOAD_PRESET === 'my_portfolio') {
-    console.warn("Cloudinary is not configured. Please update your environment variables.");
-}
 
 export const uploadImage = async (file: File): Promise<string> => {
   const formData = new FormData();
