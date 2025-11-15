@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { GithubIcon, LinkedinIcon, TwitterIcon, YoutubeIcon } from '../../components/icons';
-import { getProfile, updateProfile } from '../../services/firebaseService';
+import { GithubIcon, LinkedinIcon, TwitterIcon, YoutubeIcon, InstagramIcon, FacebookIcon, WhatsAppIcon, BehanceIcon } from '../../components/icons';
+import { getProfile, updateProfile } from '../../services/supabaseService';
+import { uploadImage } from '../../services/cloudinaryService';
 import { Profile } from '../../types';
 
-const initialProfileState: Profile = {
+const initialProfileState: Omit<Profile, 'id'> = {
     displayName: '',
     headline: '',
     bio: '',
@@ -13,11 +14,15 @@ const initialProfileState: Profile = {
         linkedin: '',
         twitter: '',
         youtube: '',
+        instagram: '',
+        facebook: '',
+        whatsapp: '',
+        behance: '',
     },
 };
 
 const ProfilePage: React.FC = () => {
-    const [profile, setProfile] = useState<Profile>(initialProfileState);
+    const [profile, setProfile] = useState<Omit<Profile, 'id'>>(initialProfileState);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string>('');
 
@@ -34,7 +39,7 @@ const ProfilePage: React.FC = () => {
                     setAvatarPreview(profileData.avatarUrl);
                 }
             } catch (error) {
-                console.error("Failed to fetch profile:", error);
+                console.error("Failed to fetch profile:", (error as Error).message);
             } finally {
                 setIsFetching(false);
             }
@@ -72,9 +77,20 @@ const ProfilePage: React.FC = () => {
         setIsLoading(true);
         setStatus(null);
         try {
-            await updateProfile(profile, avatarFile);
+            let newAvatarUrl = profile.avatarUrl;
+            if (avatarFile) {
+                newAvatarUrl = await uploadImage(avatarFile);
+            }
+
+            const profileToUpdate = {
+                ...profile,
+                avatarUrl: newAvatarUrl,
+            };
+
+            await updateProfile(profileToUpdate);
             setStatus({type: 'success', message: 'Profile updated successfully!'});
         } catch (error) {
+            console.error("Profile update failed:", (error as Error).message);
             setStatus({type: 'error', message: 'Failed to update profile.'});
         } finally {
             setIsLoading(false);
@@ -136,6 +152,22 @@ const ProfilePage: React.FC = () => {
                          <div className="flex items-center">
                            <YoutubeIcon className="w-6 h-6 mr-4 text-gray-400"/>
                            <input type="url" name="youtube" value={profile.socials.youtube} onChange={handleSocialChange} placeholder="YouTube URL" className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 transition" />
+                        </div>
+                         <div className="flex items-center">
+                           <InstagramIcon className="w-6 h-6 mr-4 text-gray-400"/>
+                           <input type="url" name="instagram" value={profile.socials.instagram} onChange={handleSocialChange} placeholder="Instagram URL" className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 transition" />
+                        </div>
+                         <div className="flex items-center">
+                           <FacebookIcon className="w-6 h-6 mr-4 text-gray-400"/>
+                           <input type="url" name="facebook" value={profile.socials.facebook} onChange={handleSocialChange} placeholder="Facebook URL" className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 transition" />
+                        </div>
+                         <div className="flex items-center">
+                           <WhatsAppIcon className="w-6 h-6 mr-4 text-gray-400"/>
+                           <input type="url" name="whatsapp" value={profile.socials.whatsapp} onChange={handleSocialChange} placeholder="WhatsApp URL" className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 transition" />
+                        </div>
+                         <div className="flex items-center">
+                           <BehanceIcon className="w-6 h-6 mr-4 text-gray-400"/>
+                           <input type="url" name="behance" value={profile.socials.behance} onChange={handleSocialChange} placeholder="Behance URL" className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 transition" />
                         </div>
                     </div>
 

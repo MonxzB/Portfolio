@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Project } from '../../types';
-import { getAllProjects, deleteProject } from '../../services/firebaseService';
+import { getAllProjects, deleteProject } from '../../services/supabaseService';
 import { PlusIcon, EditIcon, TrashIcon } from '../../components/icons';
+import { getOptimizedCloudinaryUrl } from '../../services/cloudinaryService';
 
 const ManageProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -14,7 +15,7 @@ const ManageProjectsPage: React.FC = () => {
         const projectsData = await getAllProjects();
         setProjects(projectsData);
       } catch (error) {
-        console.error("Failed to fetch projects:", error);
+        console.error("Failed to fetch projects:", (error as Error).message);
       } finally {
         setLoading(false);
       }
@@ -22,7 +23,7 @@ const ManageProjectsPage: React.FC = () => {
     fetchProjects();
   }, []);
 
-  const handleDelete = async (projectId: string, projectTitle: string) => {
+  const handleDelete = async (projectId: number, projectTitle: string) => {
     if (window.confirm(`Are you sure you want to delete the project "${projectTitle}"?`)) {
       try {
         await deleteProject(projectId);
@@ -30,7 +31,7 @@ const ManageProjectsPage: React.FC = () => {
         alert(`Project "${projectTitle}" has been deleted.`);
       } catch (error) {
         alert("Failed to delete project.");
-        console.error(error);
+        console.error("Deletion failed:", (error as Error).message);
       }
     }
   };
@@ -69,7 +70,7 @@ const ManageProjectsPage: React.FC = () => {
                 {projects.map((project, index) => (
                   <tr key={project.id} className={`border-t border-gray-700/50 ${index % 2 === 0 ? 'bg-gray-800/30' : ''}`}>
                     <td className="p-4">
-                      <img src={project.imageUrl} alt={project.title} className="w-24 h-16 object-cover rounded-md"/>
+                      <img src={getOptimizedCloudinaryUrl(project.thumbnailUrl, {width: 100, height: 60})} alt={project.title} className="w-24 h-16 object-cover rounded-md"/>
                     </td>
                     <td className="p-4 font-medium">{project.title}</td>
                     <td className="p-4">

@@ -1,9 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ProjectCard from '../components/ProjectCard';
-import { projectsData } from '../data/projectsData';
+import { getPublishedProjects } from '../services/supabaseService';
+import { Project } from '../types';
 
 const PortfolioPage: React.FC = () => {
-  const projects = projectsData.filter(p => p.isPublished);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await getPublishedProjects();
+        setProjects(data);
+      } catch (error) {
+        console.error("Failed to fetch projects:", (error as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+       <div className="flex justify-center items-center h-[60vh]">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12">

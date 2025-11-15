@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { MenuIcon, XIcon } from './icons';
+import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -11,6 +12,7 @@ const navLinks = [
 
 const Navigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAdmin } = useAuth();
 
   const activeLinkStyle = {
     color: '#a855f7', // purple-500
@@ -30,6 +32,16 @@ const Navigation: React.FC = () => {
           {link.name}
         </NavLink>
       ))}
+      {user && isAdmin && (
+        <NavLink
+          to="/admin"
+          style={({ isActive }) => (isActive ? activeLinkStyle : {})}
+          className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-purple-400 transition-colors duration-300"
+          onClick={() => setIsOpen(false)}
+        >
+          Admin
+        </NavLink>
+      )}
     </>
   );
 

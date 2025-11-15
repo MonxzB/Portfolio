@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { GithubIcon, LinkedinIcon, TwitterIcon, YoutubeIcon, InstagramIcon, FacebookIcon, WhatsAppIcon, BehanceIcon } from './icons';
-import { profileData } from '../data/profileData';
+import { getProfile } from '../services/supabaseService';
+import { Profile } from '../types';
 
 const iconMap: { [key: string]: React.ReactElement } = {
     github: <GithubIcon className="w-6 h-6" />,
@@ -14,8 +15,22 @@ const iconMap: { [key: string]: React.ReactElement } = {
 };
 
 const Footer: React.FC = () => {
-  const socialLinks = profileData?.socials 
-    ? Object.entries(profileData.socials)
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error("Failed to fetch profile for footer:", (error as Error).message);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const socialLinks = profile?.socials 
+    ? Object.entries(profile.socials)
         .filter(([, url]) => url)
         .map(([key, url]) => ({
             name: key.charAt(0).toUpperCase() + key.slice(1),
@@ -31,7 +46,7 @@ const Footer: React.FC = () => {
           <p 
             className="text-sm text-gray-400"
           >
-            &copy; {new Date().getFullYear()} {profileData?.displayName || 'Your Name'}. All rights reserved.
+            &copy; {new Date().getFullYear()} {profile?.displayName || 'Your Name'}. All rights reserved.
           </p>
           <div className="flex space-x-6">
             {socialLinks.map((link) => link.icon && (

@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
       await login(email, password);
       navigate('/admin');
     } catch (err) {
-      setError('Failed to login. Please check your credentials.');
+      setError('Failed to login. Please check your credentials or ensure you are an admin.');
       console.error("Login Error:", (err as Error).message);
     }
   };

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Project } from '../types';
 import { ExternalLinkIcon, GithubIcon } from './icons';
+import { getOptimizedCloudinaryUrl } from '../services/cloudinaryService';
 
 interface ProjectCardProps {
   project: Project;
@@ -13,11 +14,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     e.stopPropagation();
   };
 
+  const optimizedImageUrl = getOptimizedCloudinaryUrl(project.thumbnailUrl);
+
   return (
     <Link to={`/portfolio/${project.id}`} className="block h-full transition-transform duration-300 transform hover:-translate-y-2">
       <div className="bg-gray-800/50 rounded-lg overflow-hidden shadow-lg hover:shadow-purple-500/30 transition-shadow duration-300 group flex flex-col h-full">
         <div className="relative overflow-hidden">
-          <img src={project.imageUrl} alt={project.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+          <img src={optimizedImageUrl} alt={project.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
           <div className="absolute inset-0 bg-black/40"></div>
         </div>
         <div className="p-6 flex-grow flex flex-col">

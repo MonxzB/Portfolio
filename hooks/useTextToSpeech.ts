@@ -54,7 +54,7 @@ const useTextToSpeech = () => {
       setAudioUrl(newAudioUrl);
 
     } catch (err) {
-      console.error('TTS Synthesis failed:', err);
+      console.error('TTS Synthesis failed:', (err as Error).message);
       setError('Failed to synthesize speech. The API may be unavailable or the request was invalid.');
     } finally {
       setIsLoading(false);

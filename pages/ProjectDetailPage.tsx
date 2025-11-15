@@ -1,10 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { projectsData } from '../data/projectsData';
+import { getProjectById } from '../services/supabaseService';
+import { Project } from '../types';
+import { getOptimizedCloudinaryUrl } from '../services/cloudinaryService';
 
 const ProjectDetailPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const project = projectsData.find(p => p.id === projectId);
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      if (projectId) {
+        try {
+          const data = await getProjectById(Number(projectId));
+          setProject(data);
+        } catch (error) {
+          console.error(`Failed to fetch project with id ${projectId}:`, (error as Error).message);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchProject();
+  }, [projectId]);
 
   const getEmbedUrl = (url: string | undefined): string | null => {
     if (!url || url === '#') return null;
@@ -24,6 +43,14 @@ const ProjectDetailPage: React.FC = () => {
     return null;
   };
 
+  if (loading) {
+     return (
+       <div className="flex justify-center items-center h-[60vh]">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
   if (!project) {
     return (
       <div className="text-center py-20">
@@ -40,6 +67,8 @@ const ProjectDetailPage: React.FC = () => {
   }
   
   const embedUrl = getEmbedUrl(project.linkDemo);
+  const optimizedImageUrl = getOptimizedCloudinaryUrl(project.thumbnailUrl, { width: 1280, height: 720 });
+
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -64,7 +93,7 @@ const ProjectDetailPage: React.FC = () => {
                     ></iframe>
                 </div>
             ) : (
-                <img src={project.imageUrl} alt={project.title} className="rounded-lg shadow-xl shadow-purple-500/20 w-full object-cover" />
+                <img src={optimizedImageUrl} alt={project.title} className="rounded-lg shadow-xl shadow-purple-500/20 w-full object-cover" />
             )}
         </section>
         

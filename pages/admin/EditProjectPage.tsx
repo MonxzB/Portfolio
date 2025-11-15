@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { getProject, addProject, updateProject } from '../../services/firebaseService';
+import { getProjectById, addProject, updateProject } from '../../services/supabaseService';
+import { uploadImage } from '../../services/cloudinaryService';
 import { Project } from '../../types';
 
 const EditProjectPage: React.FC = () => {
@@ -18,6 +19,8 @@ const EditProjectPage: React.FC = () => {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [existingThumbnailUrl, setExistingThumbnailUrl] = useState<string>('');
+
 
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +30,7 @@ const EditProjectPage: React.FC = () => {
     if (isEditing && projectId) {
       const fetchProjectData = async () => {
         try {
-          const projectToEdit = await getProject(projectId);
+          const projectToEdit = await getProjectById(Number(projectId));
           if (projectToEdit) {
             setFormData({
               title: projectToEdit.title,
@@ -37,12 +40,13 @@ const EditProjectPage: React.FC = () => {
               linkGithub: projectToEdit.linkGithub || '',
               isPublished: projectToEdit.isPublished,
             });
-            setImagePreview(projectToEdit.imageUrl);
+            setImagePreview(projectToEdit.thumbnailUrl);
+            setExistingThumbnailUrl(projectToEdit.thumbnailUrl);
           } else {
             navigate('/admin/projects');
           }
         } catch (error) {
-          console.error("Failed to fetch project for editing:", error);
+          console.error("Failed to fetch project for editing:", (error as Error).message);
           navigate('/admin/projects');
         } finally {
             setIsFetching(false);
@@ -87,16 +91,22 @@ const EditProjectPage: React.FC = () => {
     setStatus(null);
     
     try {
-        const projectData = {
+        let thumbnailUrl = existingThumbnailUrl;
+        if (imageFile) {
+            thumbnailUrl = await uploadImage(imageFile);
+        }
+
+        const projectData: Omit<Project, 'id' | 'createdAt'> = {
             ...formData,
-            techStack: formData.techStack.split(',').map(t => t.trim()),
+            techStack: formData.techStack.split(',').map(t => t.trim()).filter(t => t),
+            thumbnailUrl: thumbnailUrl,
         };
 
         if (isEditing && projectId) {
-            await updateProject(projectId, projectData, imageFile);
+            await updateProject(Number(projectId), projectData);
             setStatus({ type: 'success', message: `Project updated successfully!`});
         } else {
-            await addProject(projectData, imageFile as File);
+            await addProject(projectData);
             setStatus({ type: 'success', message: `Project created successfully!`});
         }
       

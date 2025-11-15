@@ -1,23 +1,23 @@
-
 export interface Project {
-  id: string; // Firestore document ID
+  id: number;
   title: string;
   description: string;
-  imageUrl: string;
+  thumbnailUrl: string;
   techStack: string[];
   linkDemo?: string;
   linkGithub?: string;
-  createdAt: string;
+  createdAt: string; // ISO 8601 string from Supabase
   isPublished: boolean;
 }
 
 export interface Skill {
-  id: string; // Firestore document ID
+  id: number;
   name: string;
   iconUrl: string;
 }
 
 export interface Profile {
+  id: number;
   displayName: string;
   headline: string;
   bio: string;

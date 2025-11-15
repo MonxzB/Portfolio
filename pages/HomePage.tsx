@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { InstagramIcon, FacebookIcon, WhatsAppIcon, BehanceIcon, GithubIcon, LinkedinIcon, TwitterIcon, YoutubeIcon } from '../components/icons';
-import { profileData } from '../data/profileData';
+import { getProfile } from '../services/supabaseService';
+import { Profile } from '../types';
+import { getOptimizedCloudinaryUrl } from '../services/cloudinaryService';
 
 const iconMap: { [key: string]: React.ReactElement } = {
     github: <GithubIcon className="w-8 h-8" />,
@@ -15,21 +17,46 @@ const iconMap: { [key: string]: React.ReactElement } = {
 };
 
 const HomePage: React.FC = () => {
-  const socialLinks = profileData?.socials 
-  ? Object.entries(profileData.socials)
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error("Failed to fetch profile:", (error as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const socialLinks = profile?.socials 
+  ? Object.entries(profile.socials)
       .filter(([, url]) => url)
       .map(([key, url]) => ({
           name: key.charAt(0).toUpperCase() + key.slice(1),
           icon: iconMap[key],
-          url: url,
+          url: url as string,
       }))
   : [];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 md:py-24">
       <div className="relative mb-8">
         <img
-          src={profileData?.avatarUrl || "https://picsum.photos/seed/videoeditor/200"}
+          src={getOptimizedCloudinaryUrl(profile?.avatarUrl || "https://picsum.photos/seed/videoeditor/200")}
           alt="Profile"
           className="w-40 h-40 rounded-full object-cover shadow-2xl shadow-purple-500/30 border-4 border-gray-700"
         />
@@ -38,10 +65,10 @@ const HomePage: React.FC = () => {
         </div>
       </div>
       <h1 className="text-4xl md:text-6xl font-extrabold mb-4">
-        Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">{profileData?.displayName || 'Your Name'}</span>
+        Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">{profile?.displayName || 'Your Name'}</span>
       </h1>
       <p className="text-lg md:text-xl text-gray-300 max-w-2xl mb-8">
-        {profileData?.headline || 'A creative Video Editor specializing in visual storytelling and post-production. I bring narratives to life through compelling and dynamic edits.'}
+        {profile?.headline || 'A creative Video Editor specializing in visual storytelling and post-production. I bring narratives to life through compelling and dynamic edits.'}
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Link

@@ -18,7 +18,7 @@ const AdminLayout: React.FC = () => {
       await logout();
       // Navigation to '/login' is handled by the AuthProvider state change
     } catch (error) {
-      console.error("Failed to log out:", error);
+      console.error("Failed to log out:", (error as Error).message);
     }
   };
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TrashIcon, PlusIcon } from '../../components/icons';
 import { Skill } from '../../types';
-import { getSkills, addSkill, deleteSkill } from '../../services/firebaseService';
+import { getSkills, addSkill, deleteSkill } from '../../services/supabaseService';
+import { uploadImage } from '../../services/cloudinaryService';
 
 const SkillsPage: React.FC = () => {
     const [skills, setSkills] = useState<Skill[]>([]);
@@ -16,7 +17,7 @@ const SkillsPage: React.FC = () => {
                 const skillsData = await getSkills();
                 setSkills(skillsData);
             } catch (error) {
-                console.error("Failed to fetch skills:", error);
+                console.error("Failed to fetch skills:", (error as Error).message);
             } finally {
                 setLoading(false);
             }
@@ -33,27 +34,29 @@ const SkillsPage: React.FC = () => {
 
         setIsSubmitting(true);
         try {
-            const newSkill = await addSkill({ name: newSkillName.trim() }, newSkillIcon);
-            setSkills([...skills, newSkill]);
+            const iconUrl = await uploadImage(newSkillIcon);
+            const newSkillData = { name: newSkillName.trim(), iconUrl };
+            const addedSkill = await addSkill(newSkillData);
+            setSkills([...skills, addedSkill]);
             setNewSkillName('');
             setNewSkillIcon(null);
             // Reset file input
             (e.target as HTMLFormElement).reset();
         } catch (error) {
-            console.error("Failed to add skill:", error);
+            console.error("Failed to add skill:", (error as Error).message);
             alert("Error adding skill.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const handleDeleteSkill = async (skillId: string, skillName: string) => {
+    const handleDeleteSkill = async (skillId: number, skillName: string) => {
         if (window.confirm(`Are you sure you want to delete the skill "${skillName}"?`)) {
             try {
                 await deleteSkill(skillId);
                 setSkills(skills.filter(skill => skill.id !== skillId));
             } catch (error) {
-                console.error("Failed to delete skill:", error);
+                console.error("Failed to delete skill:", (error as Error).message);
                 alert("Error deleting skill.");
             }
         }
