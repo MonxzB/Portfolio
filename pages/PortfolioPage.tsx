@@ -1,31 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Project } from '../types';
+import React from 'react';
 import ProjectCard from '../components/ProjectCard';
-import { listenToProjects } from '../services/firebaseService';
+import { projectsData } from '../data/projectsData';
 
 const PortfolioPage: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // listenToProjects returns an unsubscribe function
-    const unsubscribe = listenToProjects(
-      (newProjects) => {
-        setProjects(newProjects);
-        setIsLoading(false);
-        setError(null);
-      },
-      (err) => {
-        setError('Failed to load projects. Please try again later.');
-        console.error(err);
-        setIsLoading(false);
-      }
-    );
-
-    // Cleanup subscription on component unmount
-    return () => unsubscribe();
-  }, []);
+  const projects = projectsData.filter(p => p.isPublished);
 
   return (
     <div className="space-y-12">
@@ -36,25 +14,11 @@ const PortfolioPage: React.FC = () => {
         </p>
       </section>
       
-      {isLoading && (
-        <div className="flex justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-        </div>
-      )}
-      
-      {error && (
-        <div className="text-center py-10">
-          <p className="text-red-400 bg-red-900/20 p-4 rounded-lg">{error}</p>
-        </div>
-      )}
-
-      {!isLoading && !error && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {projects.map((project) => (
+          <ProjectCard key={project.id} project={project} />
+        ))}
+      </div>
     </div>
   );
 };

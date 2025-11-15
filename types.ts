@@ -1,4 +1,3 @@
-import { Timestamp } from 'firebase/firestore';
 
 export interface Project {
   id: string; // Firestore document ID
@@ -8,7 +7,7 @@ export interface Project {
   techStack: string[];
   linkDemo?: string;
   linkGithub?: string;
-  createdAt: Timestamp;
+  createdAt: string;
   isPublished: boolean;
 }
 

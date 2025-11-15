@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { GithubIcon, LinkedinIcon, TwitterIcon, YoutubeIcon, InstagramIcon, FacebookIcon, WhatsAppIcon, BehanceIcon } from './icons';
-import { getProfile } from '../services/firebaseService';
-import { Profile } from '../types';
+import { profileData } from '../data/profileData';
 
 const iconMap: { [key: string]: React.ReactElement } = {
     github: <GithubIcon className="w-6 h-6" />,
@@ -16,30 +14,8 @@ const iconMap: { [key: string]: React.ReactElement } = {
 };
 
 const Footer: React.FC = () => {
-  const navigate = useNavigate();
-  const [copyrightClicks, setCopyrightClicks] = useState(0);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const profileData = await getProfile();
-      setProfile(profileData);
-    };
-    fetchProfile();
-  }, []);
-
-  const handleCopyrightClick = () => {
-    const newClickCount = copyrightClicks + 1;
-    setCopyrightClicks(newClickCount);
-
-    if (newClickCount >= 5) {
-      navigate('/admin');
-      setCopyrightClicks(0); // Reset after navigation
-    }
-  };
-
-  const socialLinks = profile?.socials 
-    ? Object.entries(profile.socials)
+  const socialLinks = profileData?.socials 
+    ? Object.entries(profileData.socials)
         .filter(([, url]) => url)
         .map(([key, url]) => ({
             name: key.charAt(0).toUpperCase() + key.slice(1),
@@ -53,11 +29,9 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
           <p 
-            className="text-sm text-gray-400 cursor-pointer select-none"
-            onClick={handleCopyrightClick}
-            title="What could this be?"
+            className="text-sm text-gray-400"
           >
-            &copy; {new Date().getFullYear()} {profile?.displayName || 'Your Name'}. All rights reserved.
+            &copy; {new Date().getFullYear()} {profileData?.displayName || 'Your Name'}. All rights reserved.
           </p>
           <div className="flex space-x-6">
             {socialLinks.map((link) => link.icon && (

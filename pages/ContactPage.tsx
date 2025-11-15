@@ -1,12 +1,6 @@
-
 import React from 'react';
 
 const ContactPage: React.FC = () => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    alert('Thank you for your message! This is a demo form.');
-  };
-
   return (
     <div className="space-y-12">
       <section className="text-center">
@@ -17,12 +11,19 @@ const ContactPage: React.FC = () => {
       </section>
 
       <div className="max-w-2xl mx-auto bg-gray-800/50 p-8 rounded-lg shadow-lg shadow-purple-500/10">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form 
+          action="https://formspree.io/f/xovyeoby"
+          method="POST"
+          className="space-y-6"
+        >
+          {/* Hidden input for success page redirect */}
+          <input type="hidden" name="_next" value="/#/contact/success" />
+          
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
             <input
               type="text"
-              name="name"
+              name="Họ tên"
               id="name"
               required
               className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
@@ -32,7 +33,7 @@ const ContactPage: React.FC = () => {
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
             <input
               type="email"
-              name="email"
+              name="Email"
               id="email"
               required
               className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
@@ -51,7 +52,7 @@ const ContactPage: React.FC = () => {
           <div>
             <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">Message</label>
             <textarea
-              name="message"
+              name="Tin nhắn"
               id="message"
               rows={5}
               required

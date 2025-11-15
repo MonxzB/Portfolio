@@ -1,28 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Project } from '../types';
-import { getProject } from '../services/firebaseService';
+import { projectsData } from '../data/projectsData';
 
 const ProjectDetailPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (projectId) {
-      const fetchProject = async () => {
-        try {
-          const projectData = await getProject(projectId);
-          setProject(projectData);
-        } catch (error) {
-          console.error("Failed to fetch project:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchProject();
-    }
-  }, [projectId]);
+  const project = projectsData.find(p => p.id === projectId);
 
   const getEmbedUrl = (url: string | undefined): string | null => {
     if (!url || url === '#') return null;
@@ -41,14 +23,6 @@ const ProjectDetailPage: React.FC = () => {
 
     return null;
   };
-  
-  if (loading) {
-     return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-      </div>
-    );
-  }
 
   if (!project) {
     return (

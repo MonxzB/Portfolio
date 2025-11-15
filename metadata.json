@@ -1,5 +1,5 @@
 {
   "name": "Video Editor Portfolio",
-  "description": "A modern, responsive personal portfolio for a video editor, built with React and Tailwind CSS, showcasing video projects and skills.",
+  "description": "A modern, responsive, and fully static personal portfolio for a video editor, built with React and Tailwind CSS, showcasing video projects and skills.",
   "requestFramePermissions": []
 }
