@@ -94,7 +94,7 @@ export const getPublishedProjects = async (): Promise<Project[]> => {
         .from('projects')
         .select('*')
         .eq('isPublished', true)
-        .order('createdAt', { ascending: false });
+        .order('created_at', { ascending: false });
     
     if (error) {
         console.error("Error fetching published projects:", error.message);
@@ -107,7 +107,7 @@ export const getAllProjects = async (): Promise<Project[]> => {
     const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .order('createdAt', { ascending: false });
+        .order('created_at', { ascending: false });
 
     if (error) {
         console.error("Error fetching all projects:", error.message);
@@ -130,10 +130,10 @@ export const getProjectById = async (id: number): Promise<Project | null> => {
     return data;
 };
 
-export const addProject = async (projectData: Omit<Project, 'id' | 'createdAt'>): Promise<void> => {
+export const addProject = async (projectData: Omit<Project, 'id' | 'created_at'>): Promise<void> => {
     const { error } = await supabase
         .from('projects')
-        .insert([{ ...projectData, createdAt: new Date().toISOString() }]);
+        .insert([{ ...projectData, created_at: new Date().toISOString() }]);
     
     if (error) {
         console.error("Error adding project:", error.message);
@@ -141,7 +141,7 @@ export const addProject = async (projectData: Omit<Project, 'id' | 'createdAt'>)
     }
 };
 
-export const updateProject = async (id: number, projectData: Partial<Omit<Project, 'id' | 'createdAt'>>): Promise<void> => {
+export const updateProject = async (id: number, projectData: Partial<Omit<Project, 'id' | 'created_at'>>): Promise<void> => {
     const { error } = await supabase
         .from('projects')
         .update(projectData)

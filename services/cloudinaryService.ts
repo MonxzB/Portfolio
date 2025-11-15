@@ -1,9 +1,9 @@
 // IMPORTANT: Configure these in your environment variables.
 // You can find these in your Cloudinary dashboard.
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dqwomkvxi';
-const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'portfolio_preset';
+const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET || 'my_portfolio';
 
-if (CLOUDINARY_CLOUD_NAME === 'dqwomkvxi' || CLOUDINARY_UPLOAD_PRESET === 'your-upload-preset') {
+if (CLOUDINARY_CLOUD_NAME === 'dqwomkvxi' || CLOUDINARY_UPLOAD_PRESET === 'my_portfolio') {
     console.warn("Cloudinary is not configured. Please update your environment variables.");
 }
 
