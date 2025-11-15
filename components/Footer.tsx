@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // <-- THÊM useRef
+import { useNavigate } from 'react-router-dom'; // <-- THÊM useNavigate
 import { GithubIcon, LinkedinIcon, TwitterIcon, YoutubeIcon, InstagramIcon, FacebookIcon, WhatsAppIcon, BehanceIcon } from './icons';
 import { getProfile } from '../services/supabaseService';
 import { Profile } from '../types';
@@ -16,6 +17,13 @@ const iconMap: { [key: string]: React.ReactElement } = {
 
 const Footer: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
+  
+  // --- LOGIC MỚI CHO EASTER EGG ---
+  const [clickCount, setClickCount] = useState(0);
+  const navigate = useNavigate();
+  // Dùng useRef để lưu trữ ID của timer, giúp chúng ta reset timer
+  const clickTimer = useRef<NodeJS.Timeout | null>(null);
+  // ---------------------------------
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -28,6 +36,31 @@ const Footer: React.FC = () => {
     };
     fetchProfile();
   }, []);
+
+  // --- HÀM MỚI XỬ LÝ CLICK ---
+  const handleCopyrightClick = () => {
+    // 1. Mỗi lần click, xóa timer reset cũ (nếu có)
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+    }
+
+    // 2. Tăng số lần click lên
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
+
+    // 3. Nếu click đủ 5 lần
+    if (newCount === 5) {
+      console.log("Easter Egg: Navigating to /admin");
+      navigate('/admin'); // Chuyển hướng đến trang admin
+      setClickCount(0); // Reset lại số lần click
+    } else {
+      // 4. Nếu chưa đủ 5 lần, đặt 1 timer. Nếu 2 giây sau không click nữa, tự reset về 0.
+      clickTimer.current = setTimeout(() => {
+        setClickCount(0);
+      }, 2000); // 2 giây
+    }
+  };
+  // ----------------------------
 
   const socialLinks = profile?.socials 
     ? Object.entries(profile.socials)
@@ -44,7 +77,8 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
           <p 
-            className="text-sm text-gray-400"
+            className="text-sm text-gray-400 cursor-pointer" // <-- THÊM "cursor-pointer"
+            onClick={handleCopyrightClick} // <-- THÊM SỰ KIỆN onClick
           >
             &copy; {new Date().getFullYear()} {profile?.displayName || 'Your Name'}. All rights reserved.
           </p>

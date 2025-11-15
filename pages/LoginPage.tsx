@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { user, login, loading } = useAuth();
+  const { user, login, loading, isAdmin } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  if (user) {
+  if (user && isAdmin) {
     return <Navigate to="/admin" replace />;
   }
 
