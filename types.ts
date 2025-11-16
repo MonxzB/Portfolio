@@ -3,10 +3,13 @@ export interface Project {
   title: string;
   description: string;
   thumbnailUrl: string;
-  techStack: string[];
+  
+  // techStack: string[]; // <-- XÓA DÒNG NÀY
+  skills: Skill[]; // <-- THÊM DÒNG NÀY (Để lưu trữ skills lấy từ bảng nối)
+
   linkDemo?: string;
   linkGithub?: string;
-  createdAt: string; // ISO 8601 string from Supabase
+  created_at: string; // <-- Đổi tên từ createdAt
   isPublished: boolean;
 }
 
@@ -32,4 +35,6 @@ export interface Profile {
     whatsapp?: string;
     behance?: string;
   };
+  user_id?: string;
+  role?: string;
 }
