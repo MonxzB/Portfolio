@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // <-- Đã thêm useState, useEffect
 import { Link } from 'react-router-dom';
 import { VideoIcon, WrenchIcon, UserCircleIcon, PlusIcon, EditIcon } from '../../components/icons';
+import { getAllProjects, getSkills, getProfile } from '../../services/supabaseService'; // <-- Đã thêm hàm
+import { Project, Skill, Profile } from '../../types'; // <-- Đã thêm types
 
 interface StatCardProps {
   title: string;
@@ -19,6 +21,36 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon }) => (
 );
 
 const DashboardHomePage: React.FC = () => {
+  // --- BẮT ĐẦU CODE MỚI ---
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Gọi cả 3 hàm cùng lúc để lấy dữ liệu
+        const [projectData, skillsData, profileData] = await Promise.all([
+          getAllProjects(),
+          getSkills(),
+          getProfile()
+        ]);
+        
+        setProjects(projectData);
+        setSkills(skillsData);
+        setProfile(profileData);
+        
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", (error as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+  // --- KẾT THÚC CODE MỚI ---
+
   return (
     <div className="space-y-12">
       <section>
@@ -27,9 +59,22 @@ const DashboardHomePage: React.FC = () => {
       </section>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard title="Total Projects" value="3" icon={<VideoIcon className="w-8 h-8 text-purple-400" />} />
-        <StatCard title="Skills Listed" value="8" icon={<WrenchIcon className="w-8 h-8 text-purple-400" />} />
-        <StatCard title="Profile Status" value="Complete" icon={<UserCircleIcon className="w-8 h-8 text-green-400" />} />
+        {/* --- ĐÃ SỬA CÁC GIÁ TRỊ "value" --- */}
+        <StatCard 
+          title="Total Projects" 
+          value={loading ? '...' : projects.length.toString()} 
+          icon={<VideoIcon className="w-8 h-8 text-purple-400" />} 
+        />
+        <StatCard 
+          title="Skills Listed" 
+          value={loading ? '...' : skills.length.toString()} 
+          icon={<WrenchIcon className="w-8 h-8 text-purple-400" />} 
+        />
+        <StatCard 
+          title="Profile Status" 
+          value={loading ? '...' : (profile ? 'Complete' : 'Missing')} 
+          icon={<UserCircleIcon className={`w-8 h-8 ${profile ? 'text-green-400' : 'text-yellow-400'}`} />} 
+        />
       </section>
       
       <section>
